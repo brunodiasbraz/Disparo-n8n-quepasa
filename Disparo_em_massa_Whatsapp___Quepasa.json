@@ -1,0 +1,760 @@
+{
+  "name": "Disparo em massa Whatsapp • Quepasa",
+  "nodes": [
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        160
+      ],
+      "webhookId": "124063ee-dd8f-476a-9d20-9cc1b5478757",
+      "id": "beff68fc-f4be-40b7-85fb-d2c003c4f2e6"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "2a18e54e-8d0b-4d6a-9bd9-6e95526c3222",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1960,
+        420
+      ],
+      "webhookId": "b9df3f50-9840-4558-9c7b-5cee4035c55c"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT \"public\".\"channel_api\".\"identifier\", \"public\".\"inboxes\".\"channel_id\" FROM \"public\".\"channel_api\" INNER JOIN \"public\".\"inboxes\" ON \"public\".\"channel_api\".\"id\" = \"public\".\"inboxes\".\"channel_id\" WHERE \"public\".\"channel_api\".\"account_id\"='{{ $json.body.messages[0].account_id }}' AND \"public\".\"inboxes\".\"id\" = '{{ $json.body.messages[0].inbox_id }}';",
+        "additionalFields": {}
+      },
+      "id": "fe1e96b7-c7e6-4a43-9b0d-3283ee832f32",
+      "name": "Informa Identifier",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        360
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "qptoken",
+              "value": "={{ $json.identifier }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15ef00be-f047-40f2-be19-3c0f348fef75",
+      "name": "TokenGenerate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1420,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Envio de mensagens via Whatsapp \n\n",
+        "height": 309.8325122936433,
+        "width": 318.85455203521883
+      },
+      "id": "e36ba5f6-a79e-4a4e-a053-29283174235d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2060,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "0e257bff-e25d-4919-8d5e-e0f3d37f720a",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [
+        740,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "21cb22fc-5905-4d72-9cc8-d9e8d7e167af",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "baseUrl": "https://quepasa.uaiz.app.br",
+        "token": "={{ $('IF2').item.json.qptoken }}",
+        "text": "=Opaaa! Sua lista de transmissão terminou. 👏🏽",
+        "chatId": "=553232169584"
+      },
+      "id": "f011429a-cd19-4fd3-903d-1c088adaafbd",
+      "name": "Final do Fluxo",
+      "type": "n8n-nodes-quepasa.quepasa",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        380
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "feb74669-202d-4972-81f9-ac67d17fc0da",
+      "name": "Spreadsheet File2",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        0,
+        220
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.payloadTabela }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "33b04d8a-2530-4eb4-b5a0-4c6722eec689",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -200,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payloadTabela",
+              "value": "={{ $json.anexos.data_url }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "id": "98c402c8-689c-4e37-beef-cad0e8721b58",
+      "name": "Payload Tabela",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        320
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "payloadAnexo",
+              "value": "={{ $json.anexos.data_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "06ba0257-7bbf-46d3-94bc-8f9a62e6db91",
+      "name": "Payload Anexo",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "7e70bdac-842f-4dad-85ea-c53784984775",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        700
+      ],
+      "webhookId": "155bd47f-4bb3-4fb5-bb40-042eb2a12f1a",
+      "id": "c0ec2ab7-002b-43ac-b290-a2fa01956b3b"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "286bcd36-bb31-4293-9cc3-fcdfd4e21367",
+      "name": "Split In Batches1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [
+        800,
+        700
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f99a83fd-3302-454e-94b3-5d33ddd47cad",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "baseUrl": "https://quepasa.uaiz.app.br",
+        "token": "={{ $('IF2').item.json.qptoken }}",
+        "text": "=Opaaa! Sua lista de transmissão terminou. 👏🏽",
+        "chatId": "=553232169584"
+      },
+      "id": "8c0c3344-6954-4041-956c-4ec7fc85747e",
+      "name": "Final do Fluxo1",
+      "type": "n8n-nodes-quepasa.quepasa",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        940
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "baseUrl": "https://quepasa.uaiz.app.br",
+        "token": "={{ $json.qptoken }}",
+        "messageId": "=",
+        "method": "sendurl",
+        "text": "={{ $json.texto }}",
+        "chatId": "= {{ $json.Telefone }}",
+        "url": "={{ $json.payloadAnexo }}"
+      },
+      "id": "5e5130bb-15a7-42c1-8b20-e64808cffcb7",
+      "name": "Envia Anexo",
+      "type": "n8n-nodes-quepasa.quepasa",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "anexos",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": {
+          "fields": [
+            {
+              "fieldName": "qptoken"
+            },
+            {
+              "fieldName": "texto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6b679c3d-3131-4f4a-88cd-3cdb5a8ca0be",
+      "name": "Item Lists",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 2.1,
+      "position": [
+        -960,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "anexos",
+              "value": "={{ $('Webhook').item.json.body.messages[0].attachments }}"
+            },
+            {
+              "name": "texto",
+              "value": "={{ $json.body.messages[0].content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "317e5009-31b8-4a8d-abf8-4771b6796b6f",
+      "name": "Set attachments and text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -1600,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "baseUrl": "https://quepasa.uaiz.app.br",
+        "token": "={{ $json.qptoken }}",
+        "text": "={{ $json.texto }}",
+        "chatId": "= {{ $json.Telefone }}"
+      },
+      "id": "534d8ea4-4a79-4d53-be7c-3575bf07d649",
+      "name": "Envia Texto",
+      "type": "n8n-nodes-quepasa.quepasa",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "214611c2-2767-4086-9cc1-6a4141afaa81",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -1180,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.payloadAnexo }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "8fbdb4ec-3368-444f-9403-150091c38489",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        420,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.anexos.file_type }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "file"
+            },
+            {
+              "value2": "image",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "5c93fc66-9bcb-46db-8e30-61cd51814a95",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        380
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "94e79591-6adc-4c7d-bbee-931fe8071a7d",
+      "name": "Merge2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        480
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Informa Identifier",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set attachments and text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Informa Identifier": {
+      "main": [
+        [
+          {
+            "node": "TokenGenerate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TokenGenerate": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Envia Texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Final do Fluxo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final do Fluxo": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payload Tabela": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payload Anexo": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split In Batches1": {
+      "main": [
+        [
+          {
+            "node": "Envia Anexo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Final do Fluxo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final do Fluxo1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia Anexo": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set attachments and text": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Envia Texto": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Item Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Payload Tabela",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Payload Anexo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "9c0440e4-7781-4760-8d07-9cf5355ba3ac",
+  "id": "24",
+  "meta": {
+    "instanceId": "1fe98c299b971a7079b9db95fbeeba6cbda6e3d96bd81b2b3e802bd6130b3324"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-06-21T15:39:50.462Z",
+      "updatedAt": "2023-06-21T15:41:38.858Z",
+      "id": "10",
+      "name": "uaizapp • crm"
+    },
+    {
+      "createdAt": "2023-07-20T01:41:13.579Z",
+      "updatedAt": "2023-07-20T01:41:13.579Z",
+      "id": "13",
+      "name": "Versão 1.3"
+    }
+  ]
+}
