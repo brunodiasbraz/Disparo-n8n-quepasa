@@ -120,10 +120,10 @@
     },
     {
       "parameters": {
-        "baseUrl": "https://quepasa.uaiz.app.br",
+        "baseUrl": "https://quepasa.dominio.com",
         "token": "={{ $('IF2').item.json.qptoken }}",
         "text": "=Opaaa! Sua lista de transmissão terminou. 👏🏽",
-        "chatId": "=553232169584"
+        "chatId": ""
       },
       "id": "f011429a-cd19-4fd3-903d-1c088adaafbd",
       "name": "Final do Fluxo",
@@ -274,10 +274,10 @@
     },
     {
       "parameters": {
-        "baseUrl": "https://quepasa.uaiz.app.br",
+        "baseUrl": "https://quepasa.dominio.com",
         "token": "={{ $('IF2').item.json.qptoken }}",
         "text": "=Opaaa! Sua lista de transmissão terminou. 👏🏽",
-        "chatId": "=553232169584"
+        "chatId": ""
       },
       "id": "8c0c3344-6954-4041-956c-4ec7fc85747e",
       "name": "Final do Fluxo1",
